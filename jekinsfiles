@@ -1,10 +1,46 @@
 pipeline { 
-   agent any
-   stages {
-     stage ('maven build') {
-       steps {
-        sh ('mvn clean install')
-      }
-    }
-  } 
-}
+     agent any 
+     environment {
+        PATH= "/opt/maven/bin:$PATH"
+
+
+      } 
+      stages { 
+
+         stage ('build') { 
+            steps { 
+
+                 echo 'build starting...'
+                 sh 'mvn clean deploy -Dmaven.test.skip=true' 
+                 echo 'build ending...'  
+            }    
+         
+         } 
+         
+         stage ('test') {
+            steps {
+
+                 echo 'test starting...'
+                 sh 'mvn surefire-report:report'
+                 echo 'test ending...'
+            }
+
+         }
+
+         stage ('SonarQube analysis') {
+         environment {
+                scannerHome = tool 'Test-SonarQube Scanner'
+  
+         }    
+            steps { 
+               withSonarQbeEnv( 'test-SonarQube-server') {  
+                                         
+                    sh '${scannerhome}/bin/sonar-scanner'   
+
+                }  
+            } 
+         }    
+    
+     } 
+ }
+
