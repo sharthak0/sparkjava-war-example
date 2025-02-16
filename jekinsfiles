@@ -1,46 +1,36 @@
 pipeline { 
-     agent any 
-     environment {
-        PATH= "/opt/maven/bin:$PATH"
+    agent any 
+    environment {
+        PATH = "/opt/maven/bin:$PATH"
+    } 
+    stages { 
 
-
-      } 
-      stages { 
-
-         stage ('build') { 
+        stage('Build') { 
             steps { 
-
-                 echo 'build starting...'
-                 sh 'mvn clean deploy -Dmaven.test.skip=true' 
-                 echo 'build ending...'  
+                echo 'Build starting...'
+                sh 'mvn clean deploy -Dmaven.test.skip=true' 
+                echo 'Build ending...'  
             }    
-         
-         } 
-         
-         stage ('test') {
+        } 
+        
+        stage('Test') {
             steps {
-
-                 echo 'test starting...'
-                 sh 'mvn surefire-report:report'
-                 echo 'test ending...'
+                echo 'Test starting...'
+                sh 'mvn surefire-report:report'
+                echo 'Test ending...'
             }
+        }
 
-         }
-
-         stage ('SonarQube analysis') {
-         environment {
+        stage('SonarQube Analysis') {
+            environment {
                 scannerHome = tool 'Test-SonarQube Scanner'
-  
-         }    
+            }    
             steps { 
-               withSonarQbeEnv( 'test-SonarQube-server') {  
-                                         
-                    sh '${scannerhome}/bin/sonar-scanner'   
-
+                withSonarQubeEnv('test-SonarQube-server') {  
+                    sh '${scannerHome}/bin/sonar-scanner'   
                 }  
             } 
-         }    
-    
-     } 
- }
+        }    
+    } 
+}
 
