@@ -1,0 +1,30 @@
+pipeline { 
+  agent any 
+  tools {
+   maven "M2_HOME"
+  } 
+  stages { 
+
+      stage ('build') { 
+        steps {
+           sh 'mvn clean deploy' 
+        }
+         
+      } 
+    
+       stage ('SonarQube analysis') {
+           environment {
+                scannerHome = tool 'Test-SonarQube Scanner'
+  
+           }    
+            steps { 
+               withSonarQbeEnv( 'test-SonarQube-server') {  
+                                         
+                    sh '${scannerhome}/bin/sonar-scanner'   
+
+                }  
+            } 
+       }    
+    
+  } 
+}
