@@ -1,16 +1,29 @@
 pipeline { 
   agent any 
-  tools {
-   maven "M2_HOME"
+  environment {
+   PATH = "/opt/maven/bin:$PATH"
   } 
   stages { 
 
       stage ('build') { 
         steps {
-           sh 'mvn clean deploy' 
-        }
+           echo 'depoying start..'
+           sh 'mvn clean deploy -Dmven.test.skip=true' 
+           echo 'deploying end....'
+        } 
+
          
-      } 
+      }  
+      
+      stage ('test') {
+        steps {
+           echo 'tsting start..'
+             sh 'mvn surefire-repot:report'
+           echo 'testing end....'
+        }
+
+
+      }
     
        stage ('SonarQube analysis') {
            environment {
